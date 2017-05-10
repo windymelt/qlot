@@ -45,6 +45,16 @@ exec ros +Q -- $0 "$@"
              (if argv
                  (uiop:symbol-call :qlot :update (probe-file (first argv)))
                  (uiop:symbol-call :qlot :update)))
+            ((equal "check" $1)
+             (when (and (first argv)
+                        (not (probe-file (first argv))))
+               (print-error "'~A' does not found." (first argv)))
+             (ros:quicklisp)
+             (uiop:symbol-call :ql :quickload :qlot :silent t)
+             (or (if argv
+                     (uiop:symbol-call :qlot :check (probe-file (first argv)))
+                     (uiop:symbol-call :qlot :check))
+                 (uiop:quit -1)))
             ((equal "bundle" $1)
              (ros:quicklisp)
              (uiop:symbol-call :ql :quickload :qlot :silent t)
@@ -77,7 +87,7 @@ exec ros +Q -- $0 "$@"
                  (print-error "Command not found: ~A" (first argv)))
                (ros:exec (cons command (rest argv)))))
             (t (format *error-output*
-                       "~&Usage: ~A [install | update | bundle | exec shell-args..]~%"
+                       "~&Usage: ~A [install | update | check | bundle | exec shell-args..]~%"
                        (file-namestring *load-pathname*))
                (ros:quit 1)))
     #+sbcl (sb-sys:interactive-interrupt () (uiop:quit -1 nil))))

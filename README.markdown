@@ -24,6 +24,10 @@ $ qlot install
 # Updating depending libraries of a project.
 $ qlot update
 
+# Checking if the dependencies listed in qlfile.lock are satisfied.
+$ qlot check
+$ qlot check || qlot install
+
 # Execute a command with a project-local Quicklisp
 $ qlot exec ros -S . run
 $ qlot exec clackup app.lisp

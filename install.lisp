@@ -5,7 +5,8 @@
                 #:with-qlot-server
                 #:localhost)
   (:import-from #:qlot/parser
-                #:prepare-qlfile)
+                #:prepare-qlfile
+                #:parse-qlfile-lock)
   (:import-from #:qlot/tmp
                 #:*tmp-directory*)
   (:import-from #:qlot/source
@@ -14,6 +15,7 @@
                 #:source-version
                 #:source-direct-dependencies
                 #:freeze-source
+                #:defrost-source
                 #:prepare
                 #:update-available-p
                 #:url-path-for
@@ -44,7 +46,8 @@
                 #:delete-directory-tree)
   (:export #:install-quicklisp
            #:install-qlfile
-           #:install-project))
+           #:install-project
+           #:check-project))
 (in-package #:qlot/install)
 
 (defvar *current-lisp-path*
@@ -336,3 +339,44 @@
       (if (uiop:directory-pathname-p object)
           (apply #'update-qlfile (find-qlfile object) args)
           (apply #'update-qlfile object args)))))
+
+(defgeneric check-project (object &rest args)
+  (:method ((object symbol) &rest args)
+    (apply #'check-project (asdf:find-system object) args))
+  (:method ((object string) &rest args)
+    (apply #'check-project (asdf:find-system object) args))
+  (:method ((object asdf:system) &rest args &key quicklisp-home &allow-other-keys)
+    (let ((system-dir (asdf:component-pathname object)))
+      (unless quicklisp-home
+        (setf args
+              (list* :quicklisp-home (asdf:system-relative-pathname object #P"quicklisp/")
+                     args)))
+      (apply #'check-project
+             (find-qlfile system-dir :errorp nil)
+             args)))
+  (:method ((object pathname) &rest args &key quicklisp-home &allow-other-keys)
+    (declare (ignore args))
+    (let* ((object (truename object))
+           (dir (uiop:pathname-directory-pathname object)))
+      (unless quicklisp-home
+        (setf quicklisp-home (merge-pathnames #P"quicklisp/" dir)))
+
+      (unless (uiop:directory-exists-p quicklisp-home)
+        (return-from check-project nil))
+
+      (let* ((qlfile (if (uiop:directory-pathname-p object)
+                         (find-qlfile object)
+                         object))
+             (qlfile.lock (make-pathname :defaults qlfile
+                                         :name (file-namestring qlfile)
+                                         :type "lock")))
+        (unless (uiop:file-exists-p qlfile.lock)
+          (return-from check-project nil))
+
+        (with-quicklisp-home quicklisp-home
+          (let ((all-sources (parse-qlfile-lock qlfile.lock)))
+            (every (lambda (source)
+                     (defrost-source source)
+                     (and (already-installed-p source)
+                          (not (source-update-available-p source))))
+                   all-sources)))))))

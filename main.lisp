@@ -9,6 +9,7 @@
                 #:project-systems)
   (:export #:install
            #:update
+           #:check
            #:install-quicklisp
            #:quickload
            #:bundle
@@ -36,6 +37,14 @@ qlfile.lock will be used with precedence if it exists."
     (if (evenp (length args))
         (apply #'update-project *default-pathname-defaults* args)
         (apply #'update-project args))))
+
+(defun check (&rest args)
+  "Check if the dependencies listed in qlfile.lock are satisfied."
+  (ensure-qlot-install)
+  (with-package-functions :qlot/install (check-project)
+    (if (evenp (length args))
+        (apply #'check-project *default-pathname-defaults* args)
+        (apply #'check-project args))))
 
 (defun install-quicklisp (&optional (path nil path-specified-p))
   "Install Quicklisp in the given PATH.
