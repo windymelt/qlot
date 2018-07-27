@@ -195,11 +195,13 @@ with the same key."
         (e (gensym))
         (restart (gensym)))
     `(let ((,retrying (make-hash-table :test 'equal)))
-       (handler-bind ((asdf:missing-component
-                        (lambda (,e)
-                          (unless (gethash (asdf::missing-requires ,e) ,retrying)
-                            (setf (gethash (asdf::missing-requires ,e) ,retrying) t)
-                            (asdf:clear-source-registry)
-                            #+quicklisp (ql:quickload (asdf::missing-requires ,e) :silent t)
-                            #-quicklisp (asdf:load-system (asdf::missing-requires ,e))))))
-         ,@body))))
+       (tagbody retry
+         (handler-bind ((asdf:missing-component
+                          (lambda (,e)
+                            (unless (gethash (asdf::missing-requires ,e) ,retrying)
+                              (setf (gethash (asdf::missing-requires ,e) ,retrying) t)
+                              (asdf:clear-source-registry)
+                              #+quicklisp (ql:quickload (asdf::missing-requires ,e) :silent t)
+                              #-quicklisp (asdf:load-system (asdf::missing-requires ,e))
+                              (go retry)))))
+           ,@body)))))
