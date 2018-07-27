@@ -16,6 +16,8 @@
   (:import-from #:qlot/source/http)
   (:import-from #:qlot/error
                 #:qlot-qlfile-error)
+  (:import-from #:qlot/util
+                #:with-retrying)
   (:import-from #:cl-ppcre)
   (:import-from #:split-sequence
                 #:split-sequence)
