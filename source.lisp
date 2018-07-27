@@ -5,7 +5,8 @@
   (:import-from #:qlot/util
                 #:find-qlfile
                 #:with-package-functions
-                #:sbcl-contrib-p)
+                #:sbcl-contrib-p
+                #:with-retrying)
   (:import-from #:uiop
                 #:directory-files
                 #:subdirectories
@@ -270,7 +271,8 @@
                 (system-name (string-downcase system-name)))
             #+quicklisp
             (when defsystem-depends-on
-              (ql:quickload defsystem-depends-on :silent t))
+              (with-retrying
+                (ql:quickload defsystem-depends-on :silent t)))
             (setf (gethash system-name *dependencies*)
                   (sort
                    (remove system-name

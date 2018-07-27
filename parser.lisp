@@ -42,8 +42,8 @@
       (apply #'make-source
              (or (find-source-class source-type)
                  (error 'qlot-qlfile-error
-                        :format-control "~A: ~A"
-                        :format-arguments (list (type-of e) e)))
+                        :format-control "Unknown source type: ~A"
+                        :format-arguments (list source-type)))
              (mapcar (lambda (arg)
                        (if (char= (aref arg 0) #\:)
                            (intern (string-upcase (subseq arg 1)) :keyword)
@@ -69,7 +69,7 @@
                                          (let ((system-name
                                                  (string-downcase
                                                   (substitute #\/ #\. (package-error-package e)))))
-                                           #+quicklisp (ql:quickload system-name :silent t)
+                                           #+quicklisp (with-retrying (ql:quickload system-name :silent t))
                                            #-quicklisp (asdf:load-system system-name)
                                            (uiop:read-file-forms file))))
         for source = (apply #'make-instance (getf args :class) (getf args :initargs))
