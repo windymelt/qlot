@@ -41,8 +41,8 @@
                  (find-source-class source-type)
                (error (e)
                  (error 'qlot-qlfile-error
-                        :format-control "~A"
-                        :format-arguments (list e))))
+                        :format-control "~A ~A"
+                        :format-arguments (list (type-of e) e))))
              (mapcar (lambda (arg)
                        (if (char= (aref arg 0) #\:)
                            (intern (string-upcase (subseq arg 1)) :keyword)

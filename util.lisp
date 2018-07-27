@@ -199,6 +199,7 @@ with the same key."
          (handler-bind ((asdf:missing-component
                           (lambda (,e)
                             (unless (gethash (asdf::missing-requires ,e) ,retrying)
+                              (warn "Retry loading ~A" (asdf::missing-requires ,e))
                               (setf (gethash (asdf::missing-requires ,e) ,retrying) t)
                               (asdf:clear-source-registry)
                               #+quicklisp (ql:quickload (asdf::missing-requires ,e) :silent t)
