@@ -324,7 +324,7 @@ Does not resolve symlinks, but PATH must actually exist in the filesystem."
   (first (uiop:directory* path)))
 
 (defmethod releases.txt ((source source-has-directory))
-  #+quicklisp (ql:quickload :ironclad :silent t)
+  #+quicklisp (with-retrying (ql:quickload :ironclad :silent t))
   #-quicklisp (asdf:load-system :ironclad)
   (let* ((tarball-file (source-archive source))
          (source-dir (normalize-pathname (source-directory source)))

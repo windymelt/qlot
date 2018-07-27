@@ -9,7 +9,8 @@
   (:import-from #:qlot/proxy
                 #:get-proxy)
   (:import-from #:qlot/util
-                #:with-package-functions)
+                #:with-package-functions
+                #:with-retrying)
   (:import-from #:dexador)
   (:export #:source-http
            #:source-http-url))
@@ -70,7 +71,7 @@
               (source-http-archive-md5 source2))))
 
 (defun archive-md5 (source)
-  #+quicklisp (ql:quickload :ironclad :silent t)
+  #+quicklisp (with-retrying (ql:quickload :ironclad :silent t))
   #-quicklisp (asdf:load-system :ironclad)
   (with-package-functions :ironclad (byte-array-to-hex-string digest-file)
     (byte-array-to-hex-string
