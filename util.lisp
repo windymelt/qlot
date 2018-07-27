@@ -198,8 +198,8 @@ with the same key."
        (handler-bind ((asdf:missing-component
                         (lambda (,e)
                           (unless (gethash (asdf::missing-requires ,e) ,retrying)
-                            (let ((,restart (find-restart 'asdf:clear-configuration-and-retry)))
-                              (when ,restart
-                                (setf (gethash (asdf::missing-requires ,e) ,retrying) t)
-                                (invoke-restart ,restart)))))))
+                            (setf (gethash (asdf::missing-requires ,e) ,retrying) t)
+                            (asdf:clear-source-registry)
+                            #+quicklisp (ql:quickload (asdf::missing-requires ,e) :silent t)
+                            #-quicklisp (asdf:load-system (asdf::missing-requires ,e))))))
          ,@body))))
