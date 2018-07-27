@@ -48,7 +48,6 @@
 (defun find-source-class (class-name)
   (let* ((package-name (format nil "~A/~:@(~A~)"
                                :qlot/source class-name))
-         (system-name (string-downcase package-name))
          (package (find-package package-name)))
     (when package
       (intern (format nil "~A-~:@(~A~)" :source class-name)
@@ -331,7 +330,7 @@ Does not resolve symlinks, but PATH must actually exist in the filesystem."
                    (ironclad:digest-sequence :sha1
                                              (let ((out (make-array (file-length in) :element-type '(unsigned-byte 8))))
                                                (read-sequence out in)
-                                               out))))))
+                                               out)))))
       (with-slots (project-name) source
         (format nil "# project url size file-md5 content-sha1 prefix [system-file1..system-fileN]~%~A ~A~A ~A ~A ~A ~A~{ ~A~}~%"
                 project-name
