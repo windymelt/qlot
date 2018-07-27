@@ -11,6 +11,9 @@
                 #:source-equal)
   (:import-from #:qlot/source/ql
                 #:source-ql)
+  (:import-from #:qlot/source/git)
+  (:import-from #:qlot/source/github)
+  (:import-from #:qlot/source/http)
   (:import-from #:qlot/error
                 #:qlot-qlfile-error)
   (:import-from #:cl-ppcre)
