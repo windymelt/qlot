@@ -72,4 +72,4 @@
 
 (defun archive-md5 (source)
   (ironclad:byte-array-to-hex-string
-   (digest-file :md5 (source-archive source))))
+   (ironclad:digest-file :md5 (source-archive source))))

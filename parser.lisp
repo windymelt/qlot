@@ -40,12 +40,10 @@
     (destructuring-bind (source-type &rest args)
         (split-sequence #\Space line :remove-empty-subseqs t)
       (apply #'make-source
-             (handler-case
-                 (find-source-class source-type)
-               (error (e)
+             (or (find-source-class source-type)
                  (error 'qlot-qlfile-error
-                        :format-control "~A ~A"
-                        :format-arguments (list (type-of e) e))))
+                        :format-control "~A: ~A"
+                        :format-arguments (list (type-of e) e)))
              (mapcar (lambda (arg)
                        (if (char= (aref arg 0) #\:)
                            (intern (string-upcase (subseq arg 1)) :keyword)
