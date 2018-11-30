@@ -21,14 +21,18 @@
         :accessor source-http-url)
    (archive-md5 :initarg :archive-md5
                 :initform nil
-                :accessor source-http-archive-md5)))
+                :accessor source-http-archive-md5)
+   (insecure :initarg :insecure
+             :initform nil
+             :accessor source-http-insecure)))
 
 (defmethod make-source ((source (eql :http)) &rest args)
-  (destructuring-bind (project-name url &optional archive-md5) args
+  (destructuring-bind (project-name url &optional archive-md5 &key insecure) args
     (make-instance 'source-http
                    :project-name project-name
                    :url url
-                   :archive-md5 archive-md5)))
+                   :archive-md5 archive-md5
+                   :insecure insecure)))
 
 (defmethod freeze-source-slots ((source source-http))
   `(:url ,(source-http-url source)
@@ -47,7 +51,8 @@
   (dex:fetch (source-http-url source)
              (source-archive source)
              :if-exists :supersede
-             :proxy (get-proxy))
+             :proxy (get-proxy)
+             :insecure (source-insecure source))
   (setf (source-directory source)
         (extract-tarball (source-archive source)
                          (tmp-path #P"source-http/repos/")))
